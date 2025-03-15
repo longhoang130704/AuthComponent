@@ -28,13 +28,17 @@ public class UserService {
     @PostConstruct
     public void initializeAdmin() {
         String adminUsername = "admin";
-        String adminPassword = "admin123";
+        String adminPassword = "admin";
 
         Optional<User> existingAdmin = userRepository.findByUsername(adminUsername);
         if (existingAdmin.isEmpty()) {
             User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), List.of(Role.ADMIN, Role.USER));
             userRepository.save(admin);
             System.out.println("Admin account created: " + adminUsername);
+        } else {
+            System.out.println("admin account is created!");
+            System.out.println("admin account is created!");
+            System.out.println("admin account is created!");
         }
     }
 
