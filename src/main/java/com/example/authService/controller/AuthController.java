@@ -46,14 +46,10 @@ public class AuthController {
     // register
     @PostMapping("/register")
     public Map<String, String> register(@RequestBody AuthRequest authRequest) {
-        try {
-            User registerUser = userService.creatUser(authRequest.getUsername(), authRequest.getPassword());
-            return Map.of("userId", registerUser.getId(),
-                    "username", registerUser.getUsername());
-        } catch (Exception e) {
-            System.out.println("Error in register controller");
-            System.err.println(e.getMessage());
-            return Map.of("message", "Internal Server Error");
-        }
+
+        User registerUser = userService.creatUser(authRequest.getUsername(), authRequest.getPassword());
+        return Map.of("userId", registerUser.getId(),
+                "username", registerUser.getUsername());
+
     }
 }

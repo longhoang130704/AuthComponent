@@ -3,7 +3,6 @@ package com.example.authService.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.authService.entity.User;
 import com.example.authService.enums.Role;
+import com.example.authService.exception.type_exception.BadRequestException;
+import com.example.authService.exception.type_exception.ConflictException;
 import com.example.authService.repository.UserRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -48,21 +49,17 @@ public class UserService {
 
     // create user
     public User creatUser(String username, String password) {
+
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("username is existed");
+            throw new ConflictException("Username is already taken");
         }
 
+        User newUser = createNewUser(username, password);
+
         try {
-            User newUser = createNewUser(username, password);
-
-            User savedUser = userRepository.save(newUser);
-
-            return savedUser;
-
+            return userRepository.save(newUser);
         } catch (Exception e) {
-            System.out.println("Erorr in create user in UserUtil or save user to database");
-            System.err.println(e.getMessage());
-            throw new RuntimeException("Internal Server Error");
+            throw new RuntimeException("Failed to save user: " + e.getMessage());
         }
     }
 
@@ -87,14 +84,17 @@ public class UserService {
 
     // create new user =================== UTIL =================
     private User createNewUser(String username, String password) throws BadRequestException {
-        if (username == null || username.isEmpty())
-            throw new BadRequestException("username is not exist");
-        if (password == null || password.isEmpty())
-            throw new BadRequestException("password is not exist");
+        if (username == null || username.trim().isEmpty()) {
+            throw new BadRequestException("Username must not be empty");
+        }
 
-        // Tất cả đều là user chỉ có 1 admin duy nhất
+        if (password == null || password.trim().isEmpty()) {
+            throw new BadRequestException("Password must not be empty");
+        }
+
         Role userRole = Role.USER;
 
         return new User(username, passwordEncoder.encode(password), List.of(userRole));
     }
+
 }
